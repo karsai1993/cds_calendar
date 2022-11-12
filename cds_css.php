@@ -74,6 +74,11 @@ function eventTitleStyle() {
         'font-weight: bold;';
 }
 
+function eventTitleLinkStyle() {
+    return
+        'color: black;';
+}
+
 function contentPartContainerStyle() {
     return
         'word-break: break-word;';

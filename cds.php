@@ -98,10 +98,16 @@ function composeEventStartContainer($event) {
 
 function composeContentContainer($event) {
     return
-        '<div style="'.eventTitleStyle().contentPartContainerStyle().'">'.resolveEventContentValue($event['summary'], 'title').'</div>
+        '
+        <div style="'.eventTitleStyle().contentPartContainerStyle().'">
+            <a style="'.eventTitleLinkStyle().'" href="'.$event['htmlLink'].'" target="_blank">
+                '.resolveEventContentValue($event['summary'], 'title').'
+            </a>
+        </div>
         <div style="'.contentPartContainerStyle().'">'.resolveEventContentValue($event['location'], 'location').'</div>
         <div style="'.contentPartContainerStyle().'">'.resolveEventContentValue($event['description'], 'description').'</div>
-        <div>'.composeEventStartTime($event).'</div>';
+        <div>'.composeEventStartTime($event).'</div>
+        ';
 }
 
 function resolveEventContentValue($eventValue, $name) {
@@ -111,7 +117,7 @@ function resolveEventContentValue($eventValue, $name) {
         $eventValue = trim($eventValue);
         $length = strlen($eventValue);
         if ($length > 100) {
-            return substr($eventValue, 0, 100).' ...';
+            return substr($eventValue, 0, 100).'...';
         } else {
             return $eventValue;
         }
