@@ -97,17 +97,53 @@ function composeEventStartContainer($event) {
 }
 
 function composeContentContainer($event) {
-    return
-        '
-        <div style="'.eventTitleStyle().contentPartContainerStyle().'">
-            <a style="'.eventTitleLinkStyle().'" href="'.$event['htmlLink'].'" target="_blank">
-                '.resolveEventContentValue($event['summary'], 'title').'
-            </a>
-        </div>
-        <div style="'.contentPartContainerStyle().'">'.resolveEventContentValue($event['location'], 'location').'</div>
-        <div style="'.contentPartContainerStyle().'">'.resolveEventContentValue($event['description'], 'description').'</div>
-        <div>'.composeEventStartTime($event).'</div>
-        ';
+    $content = $content.(
+        is_null($event['summary'])
+            ?
+                '
+                    <div style="'.eventTitleStyle().'">No title specified</div>
+                '
+            :
+                '
+                    <div style="'.eventTitleStyle().contentPartContainerStyle().'">
+                        <a style="'.eventTitleLinkStyle().'" href="'.$event['htmlLink'].'" target="_blank">
+                            '.resolveEventContentValue($event['summary'], 'title').'
+                        </a>
+                    </div>
+                '
+    );
+    $content = $content.(
+        is_null($event['location'])
+            ?
+                ''
+            :
+                '
+                    <div style="'.contentPartContainerStyle().'">
+                        '.resolveEventContentValue($event['location'], 'location').'
+                    </div>
+                '
+    );
+    $content = $content.(
+        is_null($event['description'])
+            ?
+                ''
+            :
+                '
+                    <div style="'.contentPartContainerStyle().'">
+                        '.resolveEventContentValue($event['description'], 'description').'
+                    </div>
+                '
+    );
+    $content = $content.(
+        is_null($event['start']['dateTime'])
+            ?
+                ''
+            :
+                '
+                    <div>'.composeEventStartTime($event).'</div>
+                '
+    );
+    return $content;
 }
 
 function resolveEventContentValue($eventValue, $name) {
