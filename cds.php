@@ -16,9 +16,9 @@ function resolveCdsCalendar($original_attributes) {
 	$calendarId = $attributes['calendar_id'];
 	$apiKey = $attributes['api_key'];
 
-	$eventsResult = loadEvents($calendarId, $apiKey);
+	$eventsResult = loadEvents($calendarId, $apiKey, null);
 
-	return convertEventsToHtml($eventsResult['items']);
+	return convertEventsToHtml($eventsResult['items'], $eventsResult['nextSyncToken']);
 }
 
 function getActualAttributes($original_attributes) {
@@ -29,9 +29,9 @@ function getActualAttributes($original_attributes) {
     return shortcode_atts($default, $original_attributes);
 }
 
-function loadEvents($calendarId, $apiKey) {
+function loadEvents($calendarId, $apiKey, $pageToken) {
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/calendar/v3/calendars/'.$calendarId.'/events?key='.$apiKey.'&singleEvents=true&orderBy=startTime');
+	curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/calendar/v3/calendars/'.$calendarId.'/events?key='.$apiKey.'&singleEvents=true&orderBy=startTime&maxResults=5'.(is_null($pageToken) ? '' : '&pageToken='.$pageToken));
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -48,17 +48,25 @@ function loadEvents($calendarId, $apiKey) {
 	return $decodedResult;
 }
 
-function convertEventsToHtml($events) {
+function convertEventsToHtml($events, $pageToken) {
     $numItems = count($events);
     $i = 0;
-    $content = '<div>';
+    // TODO: refactor pagination
+    /*$content = '
+        <div
+            style="padding: 5px; border: 1px solid black; border-radius: 5px;cursor: pointer; width: 60px;text-align:center;"
+            onclick="loadEvents(ok, ok, ok);"
+        >
+            Next
+        </div>';*/
+    $content = $content.'<div>';
     foreach ($events as $event) {
         $content = $content.convertEventToHtml($event, ++$i === $numItems);
     }
     $content = $content.'</div>';
 
     // TODO: delete when no need for logging
-    $content = $content.'<div>'.$consoleLog.'</div>';
+    //$content = $content.'<div>'.$consoleLog.'</div>';
     // TODO: delete when no need for events response
     //$content = $content.'<div>'.json_encode($events).'</div>';
 
