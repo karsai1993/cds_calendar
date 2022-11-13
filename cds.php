@@ -8,6 +8,8 @@
 
 require 'cds_css.php';
 
+$baseRequestUri = "student-calendar-php/";
+
 add_shortcode('cds_calendar', 'resolveCdsCalendar');
 
 function resolveCdsCalendar($original_attributes) {
@@ -16,7 +18,11 @@ function resolveCdsCalendar($original_attributes) {
 	$calendarId = $attributes['calendar_id'];
 	$apiKey = $attributes['api_key'];
 
-	$eventsResult = loadEvents($calendarId, $apiKey, null);
+    $queryString = urldecode($_SERVER['QUERY_STRING']);
+    global $baseRequestUri;
+    $urlSuffix = urldecode(explode($baseRequestUri, $_SERVER['REQUEST_URI'])[1]);
+
+	$eventsResult = loadEvents($calendarId, $apiKey, $urlSuffix, $queryString);
 
 	return convertEventsToHtml($eventsResult['items'], $eventsResult['nextSyncToken']);
 }
@@ -29,9 +35,24 @@ function getActualAttributes($original_attributes) {
     return shortcode_atts($default, $original_attributes);
 }
 
-function loadEvents($calendarId, $apiKey, $pageToken) {
+function loadEvents($calendarId, $apiKey, $urlSuffix, $queryString) {
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/calendar/v3/calendars/'.$calendarId.'/events?key='.$apiKey.'&singleEvents=true&orderBy=startTime&maxResults=5'.(is_null($pageToken) ? '' : '&pageToken='.$pageToken));
+
+    $requestUrl = 'https://www.googleapis.com/calendar/v3/calendars/';
+    $requestUrl = $requestUrl.$calendarId;
+    $requestUrl = $requestUrl.'/events?key=';
+    $requestUrl = $requestUrl.$apiKey;
+    $requestUrl = $requestUrl.'&singleEvents=true&orderBy=startTime';
+    if ($queryString !== '') {
+        $requestUrl = $requestUrl.'&q='.$queryString;
+    } else if ($urlSuffix !== '') {
+        $requestUrl = $requestUrl.'&maxResults=5&pageToken='.$pageToken;
+    } else {
+        $requestUrl = $requestUrl.'&maxResults=5';
+    }
+
+	curl_setopt($ch, CURLOPT_URL, $requestUrl);
+	//.($queryString !== '' ? '&q='.$queryString : '')
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -52,13 +73,13 @@ function convertEventsToHtml($events, $pageToken) {
     $numItems = count($events);
     $i = 0;
     // TODO: refactor pagination
-    /*$content = '
+    $content = '
         <div
             style="padding: 5px; border: 1px solid black; border-radius: 5px;cursor: pointer; width: 60px;text-align:center;"
-            onclick="loadEvents(ok, ok, ok);"
+            onclick="window.open(\''.home_url($_SERVER['REQUEST_URI']).'/'.$pageToken.'\');"
         >
             Next
-        </div>';*/
+        </div>';
     $content = $content.'<div>';
     foreach ($events as $event) {
         $content = $content.convertEventToHtml($event, ++$i === $numItems);
@@ -66,7 +87,12 @@ function convertEventsToHtml($events, $pageToken) {
     $content = $content.'</div>';
 
     // TODO: delete when no need for logging
-    //$content = $content.'<div>'.$consoleLog.'</div>';
+    //global $baseRequestUri;
+    //$content = $content.'<div>'.$baseRequestUri.'</div>';
+    //$content = $content.'<div>'.json_encode($_SERVER).'</div>';
+    //$content = $content.'<div>'.urldecode($_SERVER['QUERY_STRING']).'</div>';
+    //$content = $content.'<div>'.urldecode(home_url( $_SERVER['REQUEST_URI'] )).'</div>';
+    //$content = $content.'<div>'.urldecode(esc_url(home_url( $_SERVER['REQUEST_URI'] ))).'</div>';
     // TODO: delete when no need for events response
     //$content = $content.'<div>'.json_encode($events).'</div>';
 
