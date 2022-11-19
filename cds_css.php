@@ -1,5 +1,17 @@
 <?php
 
+function navigationNextBtnStyle($shouldBeHidden) {
+    return
+        'padding: 5px;
+         border: 1px solid black;
+         border-radius: 5px;
+         cursor: pointer;
+         width: 60px;
+         text-align:center;
+         '.($shouldBeHidden ? 'display: none;' : '').'
+        ';
+}
+
 function mainContainerDividerStyle() {
     return
         'border-bottom: 1px solid black;

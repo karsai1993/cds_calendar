@@ -8,7 +8,7 @@
 
 require 'cds_css.php';
 
-$baseRequestUri = "student-calendar-php/";
+//$baseRequestUri = "student-calendar-php/";
 
 add_shortcode('cds_calendar', 'resolveCdsCalendar');
 
@@ -19,12 +19,10 @@ function resolveCdsCalendar($original_attributes) {
 	$apiKey = $attributes['api_key'];
 
     $queryString = urldecode($_SERVER['QUERY_STRING']);
-    global $baseRequestUri;
-    $urlSuffix = urldecode(explode($baseRequestUri, $_SERVER['REQUEST_URI'])[1]);
 
-	$eventsResult = loadEvents($calendarId, $apiKey, $urlSuffix, $queryString);
+	$eventsResult = loadEvents($calendarId, $apiKey, $queryString);
 
-	return convertEventsToHtml($eventsResult['items'], $eventsResult['nextSyncToken']);
+	return convertEventsToHtml($eventsResult);
 }
 
 function getActualAttributes($original_attributes) {
@@ -35,7 +33,7 @@ function getActualAttributes($original_attributes) {
     return shortcode_atts($default, $original_attributes);
 }
 
-function loadEvents($calendarId, $apiKey, $urlSuffix, $queryString) {
+function loadEvents($calendarId, $apiKey, $queryString) {
 	$ch = curl_init();
 
     $requestUrl = 'https://www.googleapis.com/calendar/v3/calendars/';
@@ -44,9 +42,15 @@ function loadEvents($calendarId, $apiKey, $urlSuffix, $queryString) {
     $requestUrl = $requestUrl.$apiKey;
     $requestUrl = $requestUrl.'&singleEvents=true&orderBy=startTime';
     if ($queryString !== '') {
-        $requestUrl = $requestUrl.'&q='.$queryString;
-    } else if ($urlSuffix !== '') {
-        $requestUrl = $requestUrl.'&maxResults=5&pageToken='.$pageToken;
+        parse_str($queryString, $queryParams);
+
+        if (!is_null($queryParams['q'])) {
+            $requestUrl = $requestUrl.'&q='.$queryParams['q'];
+        } else if (!is_null($queryParams['p'])) {
+            $requestUrl = $requestUrl.'&maxResults=5&pageToken='.$queryParams['p'];
+        } else {
+            $requestUrl = $requestUrl.'&maxResults=5';
+        }
     } else {
         $requestUrl = $requestUrl.'&maxResults=5';
     }
@@ -59,9 +63,15 @@ function loadEvents($calendarId, $apiKey, $urlSuffix, $queryString) {
 	$result = curl_exec($ch);
 
 	if (curl_errno($ch)) {
-	    echo curl_error($ch);
+	    echo '<div>Problem occurred during composing the request!</div>';
+	    echo '<div>'.curl_error($ch).'</div>';
 	} else {
 	  $decodedResult = json_decode($result, true);
+
+	  if (!is_null($decodedResult['error'])) {
+        echo '<div>We got an error from the server! It probably means that the request url has been corrupted.</div>';
+        echo '<pre>'.json_encode($decodedResult).'</pre>';
+      }
 	}
 
 	curl_close($ch);
@@ -69,14 +79,17 @@ function loadEvents($calendarId, $apiKey, $urlSuffix, $queryString) {
 	return $decodedResult;
 }
 
-function convertEventsToHtml($events, $pageToken) {
+function convertEventsToHtml($eventsResult) {
+    $events = $eventsResult['items'];
+    $pageToken = $eventsResult['nextPageToken'];
+
     $numItems = count($events);
     $i = 0;
     // TODO: refactor pagination
     $content = '
         <div
-            style="padding: 5px; border: 1px solid black; border-radius: 5px;cursor: pointer; width: 60px;text-align:center;"
-            onclick="window.open(\''.home_url($_SERVER['REQUEST_URI']).'/'.$pageToken.'\');"
+            style="'.navigationNextBtnStyle(is_null($pageToken)).'"
+            onclick="window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p='.urlencode($pageToken).'\', \'_self\');"
         >
             Next
         </div>';
@@ -89,12 +102,13 @@ function convertEventsToHtml($events, $pageToken) {
     // TODO: delete when no need for logging
     //global $baseRequestUri;
     //$content = $content.'<div>'.$baseRequestUri.'</div>';
-    //$content = $content.'<div>'.json_encode($_SERVER).'</div>';
+    //$content = $content.'<pre>'.json_encode($_SERVER).'</pre>';
     //$content = $content.'<div>'.urldecode($_SERVER['QUERY_STRING']).'</div>';
     //$content = $content.'<div>'.urldecode(home_url( $_SERVER['REQUEST_URI'] )).'</div>';
     //$content = $content.'<div>'.urldecode(esc_url(home_url( $_SERVER['REQUEST_URI'] ))).'</div>';
     // TODO: delete when no need for events response
-    //$content = $content.'<div>'.json_encode($events).'</div>';
+    //$content = $content.'<pre>'.json_encode($events).'</pre>';
+    //$content = $content.'<pre>'.json_encode($eventsResult).'</pre>';
 
 	return $content;
 }
