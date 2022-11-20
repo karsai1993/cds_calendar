@@ -101,6 +101,25 @@ function eventTitleStyle() {
         'font-weight: bold;';
 }
 
+function eventTypesParentContainer() {
+    return
+        'display: flex;
+         align-items: center;
+        ';
+}
+
+function eventTypeStyle($isFirstItem, $isLastItem) {
+    return
+        'font-size: 10px;
+         background-color: grey;
+         color: white;
+         padding: 2px 5px;
+         '.(!$isFirstItem ? 'margin-left: 5px;' : '').'
+         '.(!$isLastItem ? 'margin-right: 5px;' : '').'
+         border-radius: 5px;
+        ';
+}
+
 function eventTitleLinkStyle() {
     return
         'color: black;';

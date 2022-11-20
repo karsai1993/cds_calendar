@@ -104,7 +104,6 @@ function convertEventsToHtml($eventsResult) {
     $i = 0;
 
     global $page;
-    // TODO: refactor pagination
     $content = '
         <div style="'.navigationBtnContainerStyle().'">
             <div
@@ -217,6 +216,16 @@ function composeEventStartContainer($event) {
 }
 
 function composeContentContainer($event) {
+    $description = $event['description'];
+    $eventTypes = resolveEventTypes($description);
+
+    $content = $content.(
+        is_null($eventTypes)
+            ?
+                ''
+            :
+                ''.composeEventTypeTags($eventTypes).''
+    );
     $content = $content.(
         is_null($event['summary'])
             ?
@@ -244,13 +253,13 @@ function composeContentContainer($event) {
                 '
     );
     $content = $content.(
-        is_null($event['description'])
+        is_null($description)
             ?
                 ''
             :
                 '
                     <div style="'.contentPartContainerStyle().'">
-                        '.resolveEventContentValue($event['description'], 'description').'
+                        '.resolveEventContentValue($description, 'description').'
                     </div>
                 '
     );
@@ -263,6 +272,33 @@ function composeContentContainer($event) {
                     <div>'.composeEventStartTime($event).'</div>
                 '
     );
+    return $content;
+}
+
+function resolveEventTypes($eventValue) {
+    if (is_null($eventValue)) {
+        return null;
+    }
+
+    $pattern = '(#+[a-zA-Z0-9(_)]{1,})';
+
+    if (preg_match_all($pattern, $eventValue, $matches)) {
+        return $matches[0];
+    } else {
+        return null;
+    }
+}
+
+function composeEventTypeTags($eventTypes) {
+    $numItems = count($eventTypes);
+    $i = 0;
+
+    $content = '<div style="'.eventTypesParentContainer().'">';
+    foreach ($eventTypes as $eventType) {
+        $content = $content.'<div style="'.eventTypeStyle($i === 0, $i === $numItems - 1).'">'.substr($eventType, 1).'</div>';
+        $i++;
+    }
+    $content = $content.'</div>';
     return $content;
 }
 
