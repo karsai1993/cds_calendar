@@ -8,7 +8,8 @@
 
 require 'cds_css.php';
 
-//$baseRequestUri = "student-calendar-php/";
+$page = null;
+$query = null;
 
 add_shortcode('cds_calendar', 'resolveCdsCalendar');
 
@@ -41,18 +42,34 @@ function loadEvents($calendarId, $apiKey, $queryString) {
     $requestUrl = $requestUrl.'/events?key=';
     $requestUrl = $requestUrl.$apiKey;
     $requestUrl = $requestUrl.'&singleEvents=true&orderBy=startTime';
+
     if ($queryString !== '') {
         parse_str($queryString, $queryParams);
-
         if (!is_null($queryParams['q'])) {
             $requestUrl = $requestUrl.'&q='.$queryParams['q'];
+            global $page;
+            global $query;
+            $page = null;
+            $query = $queryParams['q'];
         } else if (!is_null($queryParams['p'])) {
             $requestUrl = $requestUrl.'&maxResults=5&pageToken='.$queryParams['p'];
+            global $page;
+            global $query;
+            $page = $queryParams['p'];
+            $query = null;
         } else {
             $requestUrl = $requestUrl.'&maxResults=5';
+            global $page;
+            global $query;
+            $page = null;
+            $query = null;
         }
     } else {
         $requestUrl = $requestUrl.'&maxResults=5';
+        global $page;
+        global $query;
+        $page = null;
+        $query = null;
     }
 
 	curl_setopt($ch, CURLOPT_URL, $requestUrl);
@@ -85,14 +102,69 @@ function convertEventsToHtml($eventsResult) {
 
     $numItems = count($events);
     $i = 0;
+
+    global $page;
     // TODO: refactor pagination
     $content = '
-        <div
-            style="'.navigationNextBtnStyle(is_null($pageToken)).'"
-            onclick="window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p='.urlencode($pageToken).'\', \'_self\');"
-        >
-            Next
-        </div>';
+        <div style="'.navigationBtnContainerStyle().'">
+            <div
+                style="'.navigationBtnStyle(is_null($page)).'"
+                onclick="
+                    function onPreviousClicked() {
+                        let storedTokensAsString = sessionStorage.getItem(\'cds_navigation_tokens\');
+                        if (!storedTokensAsString) {
+                            alert(\'Inconsistency occurred during filtering! We will reload the page for you so that you could continue/try again.\');
+
+                            window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'\', \'_self\');
+                        } else {
+                            let storedTokens = JSON.parse(storedTokensAsString);
+                            let previousToken = \'\';
+                            if (!!storedTokens.length) {
+                                storedTokens.pop();
+                                if (!!storedTokens.length) {
+                                    previousToken = storedTokens.pop();
+                                }
+                            }
+                            sessionStorage.setItem(\'cds_navigation_tokens\', JSON.stringify(storedTokens));
+
+                            window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p=\' + previousToken, \'_self\');
+                        }
+                    };
+                    onPreviousClicked();
+                "
+            >
+                Previous
+            </div>
+            <div style="'.navigationBtnPlaceholderStyle(!is_null($page)).'"></div>
+            <div
+                style="'.navigationBtnStyle(is_null($pageToken)).'"
+                onclick="
+                    function onNextClicked() {
+                        let storedTokensAsString = sessionStorage.getItem(\'cds_navigation_tokens\');
+                        let storedTokens;
+
+                        if (!storedTokensAsString) {
+                            storedTokens = [];
+                        } else {
+                            storedTokens = JSON.parse(storedTokensAsString);
+                        }
+
+                        storedTokens.push(\''.$pageToken.'\');
+                        sessionStorage.setItem(\'cds_navigation_tokens\', JSON.stringify(storedTokens));
+
+                        window.open(
+                            \''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p='.urlencode($pageToken).'\',
+                            \'_self\'
+                        );
+                    };
+                    onNextClicked();
+                "
+            >
+                Next
+            </div>
+        </div>
+    ';
+
     $content = $content.'<div>';
     foreach ($events as $event) {
         $content = $content.convertEventToHtml($event, ++$i === $numItems);

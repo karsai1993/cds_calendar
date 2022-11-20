@@ -1,13 +1,28 @@
 <?php
 
-function navigationNextBtnStyle($shouldBeHidden) {
+function navigationBtnContainerStyle() {
+    return
+        'display: flex;
+         align-items: center;
+         justify-content: space-between;
+        ';
+}
+
+function navigationBtnStyle($shouldBeHidden) {
     return
         'padding: 5px;
          border: 1px solid black;
          border-radius: 5px;
          cursor: pointer;
-         width: 60px;
-         text-align:center;
+         text-align: center;
+         '.($shouldBeHidden ? 'display: none;' : '').'
+        ';
+}
+
+function navigationBtnPlaceholderStyle($shouldBeHidden) {
+    return
+        'width: 1px;
+         height: 1px;
          '.($shouldBeHidden ? 'display: none;' : '').'
         ';
 }
