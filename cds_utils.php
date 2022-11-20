@@ -14,4 +14,22 @@ function resolveEventTypes($eventValue) {
     }
 }
 
+function composeOrganizationEmailAddressesMap() {
+    return array(
+        'Dance Society' => array('karsai1993@gmail.com'),
+        'Sport Community' => array('jenei.kinga.s@gmail.com')
+    );
+}
+
+function getOrganizationBasedOnEmailAddress($emailAddress) {
+    $organizationEmailAddressesMap = composeOrganizationEmailAddressesMap();
+    foreach($organizationEmailAddressesMap as $organization => $emailAddresses) {
+      if (in_array($emailAddress, $emailAddresses)) {
+        return $organization;
+      }
+    }
+
+    return 'unknown organization';
+}
+
 ?>

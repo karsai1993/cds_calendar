@@ -191,6 +191,7 @@ function convertEventToHtml($event, $isLastItem) {
         '<div style="'.mainContainerStyle().$mainContainerExtraStyle.'">
             <div style="'.startDateContainerStyle().'">'.composeEventStartContainer($event).'</div>
             <div style="'.contentContainerStyle().'">'.composeContentContainer($event).'</div>
+            <div>By '.getOrganizationBasedOnEmailAddress($event['creator']['email']).'</div>
             <div>'.composeExtrasContainer($event).'</div>
         </div>';
 }
