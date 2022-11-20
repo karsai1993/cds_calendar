@@ -16,8 +16,8 @@ function resolveEventTypes($eventValue) {
 
 function composeOrganizationEmailAddressesMap() {
     return array(
-        'Dance Society' => array('karsai1993@gmail.com'),
-        'Sport Community' => array('jenei.kinga.s@gmail.com')
+        'Laszlo' => array('karsai1993@gmail.com'),
+        'Kinga' => array('jenei.kinga.s@gmail.com')
     );
 }
 
