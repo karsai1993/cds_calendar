@@ -6,6 +6,11 @@
 * Author: CDS Admin
 **/
 
+/*
+* Questions:
+* 1. Should we display the length of an event? E.g.: 1 hour, 2 days, etc
+*/
+
 require 'cds_css.php';
 require 'cds_utils.php';
 
@@ -99,16 +104,30 @@ function loadEvents($calendarId, $apiKey, $queryString) {
 
 function convertEventsToHtml($eventsResult) {
     $events = $eventsResult['items'];
-    $pageToken = $eventsResult['nextPageToken'];
 
     $numItems = count($events);
     $i = 0;
 
-    global $page;
     $content = '
+        <div style="'.searchContainerStyle().'">
+            <input style="'.searchInputContainerStyle().'" placeholder="Search in all content" />
+            <div style="'.btnStyle(false).'">Apply</div>
+        </div>
+    ';
+
+    $content = $content.'<div>';
+    foreach ($events as $event) {
+        $content = $content.convertEventToHtml($event, ++$i === $numItems);
+    }
+    $content = $content.'</div>';
+
+    $pageToken = $eventsResult['nextPageToken'];
+
+    global $page;
+    $content = $content.'
         <div style="'.navigationBtnContainerStyle().'">
             <div
-                style="'.navigationBtnStyle(is_null($page)).'"
+                style="'.btnStyle(is_null($page)).'"
                 onclick="
                     function onPreviousClicked() {
                         let storedTokensAsString = sessionStorage.getItem(\'cds_navigation_tokens\');
@@ -137,7 +156,7 @@ function convertEventsToHtml($eventsResult) {
             </div>
             <div style="'.navigationBtnPlaceholderStyle(!is_null($page)).'"></div>
             <div
-                style="'.navigationBtnStyle(is_null($pageToken)).'"
+                style="'.btnStyle(is_null($pageToken)).'"
                 onclick="
                     function onNextClicked() {
                         let storedTokensAsString = sessionStorage.getItem(\'cds_navigation_tokens\');
@@ -164,12 +183,6 @@ function convertEventsToHtml($eventsResult) {
             </div>
         </div>
     ';
-
-    $content = $content.'<div>';
-    foreach ($events as $event) {
-        $content = $content.convertEventToHtml($event, ++$i === $numItems);
-    }
-    $content = $content.'</div>';
 
     // TODO: delete when no need for logging
     //global $baseRequestUri;

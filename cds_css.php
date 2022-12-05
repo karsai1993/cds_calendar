@@ -1,20 +1,40 @@
 <?php
 
+function searchContainerStyle() {
+    return
+        'display: flex;
+         align-items: center;
+         justify-content: center;
+        ';
+}
+
+function searchInputContainerStyle() {
+    return
+        'width: 100%;
+         border-radius: 10px;
+         padding: 5px 10px;
+         border: 1px solid black;
+         margin-left: 10px;
+        ';
+}
+
 function navigationBtnContainerStyle() {
     return
         'display: flex;
          align-items: center;
-         justify-content: space-between;
+         justify-content: center;
         ';
 }
 
-function navigationBtnStyle($shouldBeHidden) {
+function btnStyle($shouldBeHidden) {
     return
-        'padding: 5px;
+        'width: 70px;
+         padding: 5px;
          border: 1px solid black;
          border-radius: 5px;
          cursor: pointer;
          text-align: center;
+         margin: 0px 10px;
          '.($shouldBeHidden ? 'display: none;' : '').'
         ';
 }
