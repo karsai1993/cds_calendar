@@ -108,12 +108,12 @@ function convertEventsToHtml($eventsResult) {
     $numItems = count($events);
     $i = 0;
 
-    $content = '
+    /*$content = '
         <div style="'.searchContainerStyle().'">
             <input style="'.searchInputContainerStyle().'" placeholder="Search in all content" />
             <div style="'.btnStyle(false).'">Apply</div>
         </div>
-    ';
+    ';*/
 
     $content = $content.'<div>';
     foreach ($events as $event) {
