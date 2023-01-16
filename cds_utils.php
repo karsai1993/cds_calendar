@@ -17,7 +17,7 @@ function resolveEventTypes($eventValue) {
 function composeOrganizationEmailAddressesMap() {
     return array(
         'Laszlo' => array('karsai1993@gmail.com'),
-        'Kinga' => array('jenei.kinga.s@gmail.com')
+        'Chalmers Dance Society' => array('frank@dance.chs.chalmers.se')
     );
 }
 
@@ -29,7 +29,7 @@ function getOrganizationBasedOnEmailAddress($emailAddress) {
       }
     }
 
-    return 'unknown organization';
+    return $emailAddress;
 }
 
 ?>
