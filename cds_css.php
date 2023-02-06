@@ -14,7 +14,16 @@ function searchInputContainerStyle() {
          border-radius: 10px;
          padding: 5px 10px;
          border: 1px solid black;
-         margin-left: 10px;
+         margin-right: 10px;
+        ';
+}
+
+function searchLoadingContainer() {
+    return
+        '
+         text-align: center;
+         font-size: 18px;
+         font-style: italic;
         ';
 }
 
@@ -36,6 +45,15 @@ function btnStyle($shouldBeHidden) {
          text-align: center;
          margin: 0px 10px;
          '.($shouldBeHidden ? 'display: none;' : '').'
+        ';
+}
+
+function searchBtnStyle() {
+    return
+        'width: 80px;
+         border-radius: 10px;
+         text-align: center;
+         padding: 10px;
         ';
 }
 

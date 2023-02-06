@@ -108,12 +108,24 @@ function convertEventsToHtml($eventsResult) {
     $numItems = count($events);
     $i = 0;
 
-    /*$content = '
-        <div style="'.searchContainerStyle().'">
-            <input style="'.searchInputContainerStyle().'" placeholder="Search in all content" />
-            <div style="'.btnStyle(false).'">Apply</div>
-        </div>
-    ';*/
+    $content = '
+        <form action="" method="post" style="'.searchContainerStyle().'">
+            <input style="'.searchInputContainerStyle().'" type="text" name="search_query" placeholder="Search in all content">
+            <button style="'.searchBtnStyle().'" name="search_apply">Apply</button>
+        </form>
+    ';
+
+    if (isset($_POST['search_apply'])) {
+        echo '<div style="'.searchLoadingContainer().'">Please, wait! We are loading your search results.</div>';
+        echo '
+            <script type="text/javascript">
+                window.open(
+                    "'.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?q='.urlencode($_POST['search_query']).'",
+                    "_self"
+                );
+            </script>
+        ';
+    }
 
     $content = $content.'<div>';
     foreach ($events as $event) {
