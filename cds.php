@@ -52,13 +52,13 @@ function loadEvents($calendarId, $apiKey, $queryString) {
     if ($queryString !== '') {
         parse_str($queryString, $queryParams);
         if (!is_null($queryParams['q'])) {
-            $requestUrl = $requestUrl.'&q='.$queryParams['q'];
+            $requestUrl = $requestUrl.'&q='.urlencode($queryParams['q']);
             global $page;
             global $query;
             $page = null;
             $query = $queryParams['q'];
         } else if (!is_null($queryParams['p'])) {
-            $requestUrl = $requestUrl.'&maxResults=5&pageToken='.$queryParams['p'];
+            $requestUrl = $requestUrl.'&maxResults=5&pageToken='.urlencode($queryParams['p']);
             global $page;
             global $query;
             $page = $queryParams['p'];
@@ -108,16 +108,29 @@ function convertEventsToHtml($eventsResult) {
     $numItems = count($events);
     $i = 0;
 
-    $content = '
-        <form action="" method="post" style="'.searchContainerStyle().'">
-            <input style="'.searchInputContainerStyle().'" type="text" name="search_query" placeholder="Search in all content">
-            <button style="'.searchBtnStyle().'" name="search_apply">Apply</button>
-        </form>
-    ';
+    global $query;
+    if (!is_null($query)) {
+        $content = '
+            <div style="'.showSearchContainerStyle().'">
+                <div style="'.showSearchOutputContainerStyle().'">
+                    <div style="'.showSearchOutputHeaderContainerStyle().'">Applied filter</div>
+                    <div style="'.showSearchOutputValueContainerStyle().'">'.$query.'</div>
+                </div>
+                <button style="'.searchBtnStyle(20).'" onclick="window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'\', \'_self\');">Remove filter</button>
+            </div>
+        ';
+    } else {
+        $content = '
+            <form action="" method="post" style="'.searchContainerStyle().'">
+                <input style="'.searchInputContainerStyle().'" type="text" name="search_query" placeholder="Filter in all content">
+                <button style="'.searchBtnStyle(0).'" name="search_apply">Apply filter</button>
+            </form>
+        ';
+    }
 
     if (isset($_POST['search_apply'])) {
-        echo '<div style="'.searchLoadingContainer().'">Please, wait! We are loading your search results.</div>';
-        echo '
+        $content = '<div style="'.searchLoadingContainer().'">Please, wait! We are loading your search results.</div>';
+        $content = $content.'
             <script type="text/javascript">
                 window.open(
                     "'.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?q='.urlencode($_POST['search_query']).'",

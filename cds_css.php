@@ -1,16 +1,60 @@
 <?php
 
+function showSearchOutputHeaderContainerStyle() {
+    return
+        '
+         padding: 20px;
+         border-right: 1px solid;
+         text-align: center;
+        ';
+}
+
+function showSearchOutputValueContainerStyle() {
+    return
+        '
+         font-weight: bold;
+         font-style: italic;
+         font-size: 18px;
+         flex: 1;
+         text-align: center;
+         margin-left: 10px;
+         margin-right: 10px;
+        ';
+}
+
+function showSearchContainerStyle() {
+    return
+        '
+         display: flex;
+         align-items: center;
+         border: 1px solid;
+         border-radius: 20px;
+         margin-bottom: 10px;
+        ';
+}
+
+function showSearchOutputContainerStyle() {
+    return
+        '
+         flex: 1;
+         display: flex;
+         align-items: center;
+        ';
+}
+
 function searchContainerStyle() {
     return
         'display: flex;
          align-items: center;
          justify-content: center;
+         margin-bottom: 10px;
         ';
 }
 
 function searchInputContainerStyle() {
     return
-        'width: 100%;
+        '
+         flex: 1;
          border-radius: 10px;
          padding: 5px 10px;
          border: 1px solid black;
@@ -48,12 +92,13 @@ function btnStyle($shouldBeHidden) {
         ';
 }
 
-function searchBtnStyle() {
+function searchBtnStyle($marginRight) {
     return
-        'width: 80px;
+        '
          border-radius: 10px;
          text-align: center;
          padding: 10px;
+         margin-right: '.$marginRight.'px;
         ';
 }
 
