@@ -52,13 +52,13 @@ function loadEvents($calendarId, $apiKey, $queryString) {
     $defaultTimeMin = date("Y-m-d\TH:i:s\Z");
 
     parse_str($queryString, $queryParams);
-    if ($queryString !== '' && !is_null($queryParams['q']) && $queryParams['q'] != '') {
+    if (!is_null($queryParams['q']) && $queryParams['q'] != '') {
         $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&q='.urlencode($queryParams['q']);
         global $page;
         global $query;
         $page = null;
         $query = $queryParams['q'];
-    } else if ($queryString !== '' && !is_null($queryParams['p'])) {
+    } else if (!is_null($queryParams['p'])) {
         $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=5&pageToken='.urlencode($queryParams['p']);
         global $page;
         global $query;
@@ -73,7 +73,6 @@ function loadEvents($calendarId, $apiKey, $queryString) {
     }
 
 	curl_setopt($ch, CURLOPT_URL, $requestUrl);
-	//.($queryString !== '' ? '&q='.$queryString : '')
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
