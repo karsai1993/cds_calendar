@@ -348,11 +348,11 @@ function composeEventStartTime($event) {
    if ($eventStartTimeValue === 'No time specified') {
         return $eventStartTimeValue;
    } else {
-        $timestamp = strtotime($event['start']['dateTime']);
+        $date = new DateTime($event['start']['dateTime'], new DateTimeZone($event['start']['timeZone']));
         return
             '<div style="'.clockContainerStyle().'">
                 <img style="'.clockIconStyle().'" border="0" src="https://cdn.pixabay.com/photo/2017/06/26/00/46/flat-2442462_960_720.png">
-                <div>'.date('H:s', $timestamp).'</div>
+                <div>'.$date->format('H:i').'</div>
             </div>';
    }
 }
