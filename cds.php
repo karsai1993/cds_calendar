@@ -151,8 +151,8 @@ function convertEventsToHtml($eventsResult) {
     global $page;
     $content = $content.'
         <div style="'.navigationBtnContainerStyle().'">
-            <div
-                style="'.btnStyle(is_null($page)).'"
+            <button
+                style="'.pageNavigationBtnStyle(is_null($page)).'"
                 onclick="
                     function onPreviousClicked() {
                         let storedTokensAsString = sessionStorage.getItem(\'cds_navigation_tokens\');
@@ -177,11 +177,11 @@ function convertEventsToHtml($eventsResult) {
                     onPreviousClicked();
                 "
             >
-                Previous
-            </div>
+                Previous page
+            </button>
             <div style="'.navigationBtnPlaceholderStyle(!is_null($page)).'"></div>
-            <div
-                style="'.btnStyle(is_null($pageToken)).'"
+            <button
+                style="'.pageNavigationBtnStyle(is_null($pageToken)).'"
                 onclick="
                     function onNextClicked() {
                         let storedTokensAsString = sessionStorage.getItem(\'cds_navigation_tokens\');
@@ -204,8 +204,8 @@ function convertEventsToHtml($eventsResult) {
                     onNextClicked();
                 "
             >
-                Next
-            </div>
+                Next page
+            </button>
         </div>
     ';
 

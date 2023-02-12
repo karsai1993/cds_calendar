@@ -79,15 +79,14 @@ function navigationBtnContainerStyle() {
         ';
 }
 
-function btnStyle($shouldBeHidden) {
+function pageNavigationBtnStyle($shouldBeHidden) {
     return
-        'width: 70px;
-         padding: 5px;
-         border: 1px solid black;
-         border-radius: 5px;
-         cursor: pointer;
+        '
+         width: 140px;
+         border-radius: 10px;
          text-align: center;
-         margin: 0px 10px;
+         padding: 10px;
+         margin: 0px 5px;
          '.($shouldBeHidden ? 'display: none;' : '').'
         ';
 }
