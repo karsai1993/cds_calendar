@@ -49,29 +49,23 @@ function loadEvents($calendarId, $apiKey, $queryString) {
     $requestUrl = $requestUrl.$apiKey;
     $requestUrl = $requestUrl.'&singleEvents=true&orderBy=startTime';
 
-    if ($queryString !== '') {
-        parse_str($queryString, $queryParams);
-        if (!is_null($queryParams['q'])) {
-            $requestUrl = $requestUrl.'&q='.urlencode($queryParams['q']);
-            global $page;
-            global $query;
-            $page = null;
-            $query = $queryParams['q'];
-        } else if (!is_null($queryParams['p'])) {
-            $requestUrl = $requestUrl.'&maxResults=5&pageToken='.urlencode($queryParams['p']);
-            global $page;
-            global $query;
-            $page = $queryParams['p'];
-            $query = null;
-        } else {
-            $requestUrl = $requestUrl.'&maxResults=5';
-            global $page;
-            global $query;
-            $page = null;
-            $query = null;
-        }
+    $defaultTimeMin = date("Y-m-d\TH:i:s\Z");
+
+    parse_str($queryString, $queryParams);
+    if ($queryString !== '' && !is_null($queryParams['q']) && $queryParams['q'] != '') {
+        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&q='.urlencode($queryParams['q']);
+        global $page;
+        global $query;
+        $page = null;
+        $query = $queryParams['q'];
+    } else if ($queryString !== '' && !is_null($queryParams['p'])) {
+        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=5&pageToken='.urlencode($queryParams['p']);
+        global $page;
+        global $query;
+        $page = $queryParams['p'];
+        $query = null;
     } else {
-        $requestUrl = $requestUrl.'&maxResults=5';
+        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=5';
         global $page;
         global $query;
         $page = null;
@@ -141,8 +135,12 @@ function convertEventsToHtml($eventsResult) {
     }
 
     $content = $content.'<div>';
-    foreach ($events as $event) {
-        $content = $content.convertEventToHtml($event, ++$i === $numItems);
+    if ($numItems == 0) {
+        $content = $content.'<div style="'.noEventsFoundStyle().'">We could not find any events.</div>';
+    } else {
+        foreach ($events as $event) {
+            $content = $content.convertEventToHtml($event, ++$i === $numItems);
+        }
     }
     $content = $content.'</div>';
 

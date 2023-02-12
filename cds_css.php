@@ -1,5 +1,14 @@
 <?php
 
+function noEventsFoundStyle() {
+    return
+        '
+         text-align: center;
+         font-size: 20px;
+         font-weight: bold;
+        ';
+}
+
 function showSearchOutputHeaderContainerStyle() {
     return
         '
