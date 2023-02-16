@@ -166,6 +166,16 @@ function calendarIconTextStyle() {
          text-align: center;';
 }
 
+function startDateWeekDayStyle() {
+    return
+        '
+         font-size: 20px;
+         font-weight: bold;
+         height: 20px;
+         text-align: right;
+         ';
+}
+
 function startDateMonthStyle() {
     return
         'font-size: 24px;

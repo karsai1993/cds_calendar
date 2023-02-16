@@ -290,12 +290,15 @@ function composeExtrasContainer($event) {
 function composeEventStartContainer($event) {
     $originalDate = is_null($event['start']['dateTime']) ? $event['start']['date'] : $event['start']['dateTime'];
     $timestamp = strtotime($originalDate);
-    $formattedDate = date('M d Y', $timestamp);
-    list($month, $day, $year) = explode(' ', $formattedDate);
+    $formattedDate = date('D M d Y', $timestamp);
+    list($weekDay, $month, $day, $year) = explode(' ', $formattedDate);
     return
-        '<div style="'.startDateMonthStyle().'">'.$month.'</div>
-        <div style="'.startDateDayStyle().'">'.$day.'</div>
-        <div style="'.startDateYearStyle().'">'.$year.'</div>';
+        '
+         <div style="'.startDateMonthStyle().'">'.$month.'</div>
+         <div style="'.startDateDayStyle().'">'.$day.'</div>
+         <div style="'.startDateWeekDayStyle().'">'.$weekDay.'</div>
+         <div style="'.startDateYearStyle().'">'.$year.'</div>
+        ';
 }
 
 function composeContentContainer($event) {
