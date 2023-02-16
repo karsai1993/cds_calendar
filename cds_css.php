@@ -1,5 +1,16 @@
 <?php
 
+function showMoreLessBtnStyle() {
+    return
+        'padding: 0px;
+         background-color: unset;
+         color: unset;
+         text-decoration: underline;
+         font-family: inherit;
+         font-size: 12px;
+        ';
+}
+
 function noEventsFoundStyle() {
     return
         '

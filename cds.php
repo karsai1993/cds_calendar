@@ -11,6 +11,8 @@
 * 1. Should we display the length of an event? E.g.: 1 hour, 2 days, etc
 */
 
+// TODO: Improve click behaviour!
+
 require 'cds_css.php';
 require 'cds_utils.php';
 
@@ -305,6 +307,8 @@ function composeContentContainer($event) {
     $description = $event['description'];
     $eventTypes = resolveEventTypes($description);
 
+    $eventId = $event['id'];
+
     $content = $content.(
         is_null($eventTypes)
             ?
@@ -322,7 +326,7 @@ function composeContentContainer($event) {
                 '
                     <div style="'.eventTitleStyle().contentPartContainerStyle().'">
                         <a style="'.eventTitleLinkStyle().'" href="'.$event['htmlLink'].'" target="_blank">
-                            '.resolveEventContentValue($event['summary'], 'title').'
+                            '.resolveEventContentValue($event['summary'], 'title', $eventId).'
                         </a>
                     </div>
                 '
@@ -334,7 +338,7 @@ function composeContentContainer($event) {
             :
                 '
                     <div style="'.contentPartContainerStyle().'">
-                        '.resolveEventContentValue($event['location'], 'location').'
+                        '.resolveEventContentValue($event['location'], 'location', $eventId).'
                     </div>
                 '
     );
@@ -345,7 +349,7 @@ function composeContentContainer($event) {
             :
                 '
                     <div style="'.contentPartContainerStyle().'">
-                        '.resolveEventContentValue($description, 'description').'
+                        '.resolveEventContentValue($description, 'description', $eventId).'
                     </div>
                 '
     );
@@ -374,14 +378,43 @@ function composeEventTypeTags($eventTypes) {
     return $content;
 }
 
-function resolveEventContentValue($eventValue, $name) {
+function resolveEventContentValue($eventValue, $name, $eventId) {
     if (is_null($eventValue)) {
         return 'No '.$name.' specified';
     } else {
         $eventValue = trim($eventValue);
         $length = strlen($eventValue);
         if ($length > 100) {
-            return substr($eventValue, 0, 100).'...';
+            return '
+                <div>
+                    <label id="show_more_'.$eventId.'_'.$name.'_label_id">'.substr($eventValue, 0, 100).'...</label>
+                    <label id="show_less_'.$eventId.'_'.$name.'_label_id" style="display: none;">'.$eventValue.'</label>
+                    <button id="show_more_less_'.$eventId.'_'.$name.'_btn_id" onclick="myFunction(\''.$eventId.'\', \''.$name.'\');" style="'.showMoreLessBtnStyle('unset').'">Show more</button>
+                    <script>
+                        function myFunction(eventId, name) {
+                            let show_more_label = document.getElementById(`show_more_${eventId}_${name}_label_id`);
+                            let show_less_label = document.getElementById(`show_less_${eventId}_${name}_label_id`);
+                            let btn = document.getElementById(`show_more_less_${eventId}_${name}_btn_id`);
+
+                            if ((!show_more_label && !show_less_label) || !btn) {
+                                return;
+                            }
+
+                            if (show_less_label?.style?.display === \'none\') {
+                                show_less_label.style.display = \'inline\';
+                                btn.innerHTML = \'Show less\';
+                                btn.style.width = \'100%\';
+                                show_more_label.style.display = \'none\';
+                            } else {
+                                show_less_label.style.display = \'none\';
+                                btn.innerHTML = \'Show more\';
+                                btn.style.width = \'unset\';
+                                show_more_label.style.display = \'inline\';
+                            }
+                        }
+                    </script>
+                </div>
+            ';
         } else {
             return $eventValue;
         }
@@ -389,7 +422,7 @@ function resolveEventContentValue($eventValue, $name) {
 }
 
 function composeEventStartTime($event) {
-   $eventStartTimeValue = resolveEventContentValue($event['start']['dateTime'], 'time');
+   $eventStartTimeValue = resolveEventContentValue($event['start']['dateTime'], 'time', $event['id']);
 
    if ($eventStartTimeValue === 'No time specified') {
         return $eventStartTimeValue;
