@@ -95,6 +95,49 @@ function loadEvents($calendarId, $apiKey, $queryString) {
 	return $decodedResult;
 }
 
+/*
+TODO: Fix when monthly view should be created
+function identifyDateYearAndMonth($queryParamsDateYear, $queryParamsDateMonth) {
+    $defaultDateYearMin = date("Y");
+    $defaultDateMonthMin = date("m");
+
+    $year = $defaultDateYearMin;
+    $isYearGreater = (int) $queryParamsDateYear > (int) $defaultDateYearMin;
+    if (!is_null($queryParamsDateYear) && $queryParamsDateYear == '' && $isYearGreater) {
+        $year = $queryParamsDateYear;
+    }
+
+    $month = $defaultDateMonthMin;
+    if (!is_null($queryParamsDateMonth) && $queryParamsDateMonth == '' && ($isYearGreater || (int) $queryParamsDateMonth >= (int) $defaultDateMonthMin)) {
+        $month = $queryParamsDateMonth;
+    }
+
+    return $year.'-'.$month;
+}
+
+function identifyTimeMin($queryParamsDateYear, $queryParamsDateMonth) {
+    $dateYearAndMonth = identifyDateYearAndMonth($queryParamsDateYear, $queryParamsDateMonth);
+
+    $dateTimeMinCalculated = ''.$dateYearAndMonth.'-01';
+    $dateTimeMinAbsolut = date('Y-m-d');
+
+    if (strtotime($dateTimeMinAbsolut) > strtotime($dateTimeMinCalculated)) {
+        $dateTime = new DateTime($dateTimeMinAbsolut);
+        return $dateTime->format('Y-m-d\T\0\0:\0\0:\0\0\Z');
+    } else {
+        $dateTime = new DateTime($dateTimeMinCalculated);
+        return $dateTime->format('Y-m-01\T\0\0:\0\0:\0\0\Z');
+    }
+
+}
+
+function identifyTimeMax($queryParamsDate, $defaultTimeMin) {
+    $dateYearAndMonth = identifyDateYearAndMonth($queryParamsDateYear, $queryParamsDateMonth);
+
+    $dateTimeMax = new DateTime(''.$dateYearAndMonth.'-01');
+    return $dateTimeMax->format('Y-m-t\T\2\3:\5\9:\5\9\Z');
+}*/
+
 function convertEventsToHtml($eventsResult) {
     $events = $eventsResult['items'];
 
@@ -215,7 +258,10 @@ function convertEventsToHtml($eventsResult) {
     //$content = $content.'<div>'.urldecode(esc_url(home_url( $_SERVER['REQUEST_URI'] ))).'</div>';
     // TODO: delete when no need for events response
     //$content = $content.'<pre>'.json_encode($events).'</pre>';
-    //$content = $content.'<pre>'.json_encode($eventsResult).'</pre>';
+    //$content = $content.'<div>'.date("Y").'</div>';
+    //$content = $content.'<div>'.date("m").'</div>';
+    //$content = $content.'<div>'.identifyTimeMin(null, null).'</div>';
+    //$content = $content.'<div>'.identifyTimeMax(null, null).'</div>';
 
 	return $content;
 }
