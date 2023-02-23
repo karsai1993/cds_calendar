@@ -62,13 +62,13 @@ function loadEvents($calendarId, $apiKey, $queryString) {
         $page = null;
         $query = $queryParams['q'];
     } else if (!is_null($queryParams['p'])) {
-        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=5&pageToken='.urlencode($queryParams['p']);
+        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=10&pageToken='.urlencode($queryParams['p']);
         global $page;
         global $query;
         $page = $queryParams['p'];
         $query = null;
     } else {
-        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=5';
+        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=10';
         global $page;
         global $query;
         $page = null;
