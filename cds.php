@@ -15,6 +15,7 @@
 
 require 'cds_css.php';
 require 'cds_utils.php';
+require 'cds_functions.php';
 
 $page = null;
 $query = null;
@@ -195,56 +196,17 @@ function convertEventsToHtml($eventsResult) {
         <div style="'.navigationBtnContainerStyle().'">
             <button
                 style="'.pageNavigationBtnStyle(is_null($page)).'"
-                onclick="
-                    function onPreviousClicked() {
-                        let storedTokensAsString = sessionStorage.getItem(\'cds_navigation_tokens\');
-                        if (!storedTokensAsString) {
-                            alert(\'Inconsistency occurred during filtering! We will reload the page for you so that you could continue/try again.\');
-
-                            window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'\', \'_self\');
-                        } else {
-                            let storedTokens = JSON.parse(storedTokensAsString);
-                            let previousToken = \'\';
-                            if (!!storedTokens.length) {
-                                storedTokens.pop();
-                                if (!!storedTokens.length) {
-                                    previousToken = storedTokens.pop();
-                                }
-                            }
-                            sessionStorage.setItem(\'cds_navigation_tokens\', JSON.stringify(storedTokens));
-
-                            window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p=\' + previousToken, \'_self\');
-                        }
-                    };
-                    onPreviousClicked();
-                "
+                onclick="onPreviousClicked(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'\')"
             >
                 Previous page
             </button>
             <div style="'.navigationBtnPlaceholderStyle(!is_null($page)).'"></div>
             <button
                 style="'.pageNavigationBtnStyle(is_null($pageToken)).'"
-                onclick="
-                    function onNextClicked() {
-                        let storedTokensAsString = sessionStorage.getItem(\'cds_navigation_tokens\');
-                        let storedTokens;
-
-                        if (!storedTokensAsString) {
-                            storedTokens = [];
-                        } else {
-                            storedTokens = JSON.parse(storedTokensAsString);
-                        }
-
-                        storedTokens.push(\''.$pageToken.'\');
-                        sessionStorage.setItem(\'cds_navigation_tokens\', JSON.stringify(storedTokens));
-
-                        window.open(
-                            \''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p='.urlencode($pageToken).'\',
-                            \'_self\'
-                        );
-                    };
-                    onNextClicked();
-                "
+                onclick="onNextPageClicked(
+                    \''.$pageToken.'\',
+                    \''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p='.urlencode($pageToken).'\'
+                )"
             >
                 Next page
             </button>
@@ -265,7 +227,7 @@ function convertEventsToHtml($eventsResult) {
     //$content = $content.'<div>'.identifyTimeMin(null, null).'</div>';
     //$content = $content.'<div>'.identifyTimeMax(null, null).'</div>';
 
-	return $content;
+	return $content.'<script>'.fetchFunctions().'</script>';
 }
 
 function convertEventToHtml($event, $isLastItem) {
@@ -389,30 +351,7 @@ function resolveEventContentValue($eventValue, $name, $eventId) {
                 <div>
                     <label id="show_more_'.$eventId.'_'.$name.'_label_id">'.substr($eventValue, 0, 100).'...</label>
                     <label id="show_less_'.$eventId.'_'.$name.'_label_id" style="display: none;">'.$eventValue.'</label>
-                    <button id="show_more_less_'.$eventId.'_'.$name.'_btn_id" onclick="myFunction(\''.$eventId.'\', \''.$name.'\');" style="'.showMoreLessBtnStyle('unset').'">Show more</button>
-                    <script>
-                        function myFunction(eventId, name) {
-                            let show_more_label = document.getElementById(`show_more_${eventId}_${name}_label_id`);
-                            let show_less_label = document.getElementById(`show_less_${eventId}_${name}_label_id`);
-                            let btn = document.getElementById(`show_more_less_${eventId}_${name}_btn_id`);
-
-                            if ((!show_more_label && !show_less_label) || !btn) {
-                                return;
-                            }
-
-                            if (show_less_label?.style?.display === \'none\') {
-                                show_less_label.style.display = \'inline\';
-                                btn.innerHTML = \'Show less\';
-                                btn.style.width = \'100%\';
-                                show_more_label.style.display = \'none\';
-                            } else {
-                                show_less_label.style.display = \'none\';
-                                btn.innerHTML = \'Show more\';
-                                btn.style.width = \'unset\';
-                                show_more_label.style.display = \'inline\';
-                            }
-                        }
-                    </script>
+                    <button id="show_more_less_'.$eventId.'_'.$name.'_btn_id" onclick="onShowMoreLessClicked(\''.$eventId.'\', \''.$name.'\');" style="'.showMoreLessBtnStyle('unset').'">Show more</button>
                 </div>
             ';
         } else {
