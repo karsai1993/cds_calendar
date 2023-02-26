@@ -271,7 +271,7 @@ function composeContentContainer($event) {
                 ''
             :
                 '
-                    <div>'.composeEventStartTime($event).'</div>
+                    <div>'.composeEventStartAndEndTime($event).'</div>
                 '
     );
     return $content;
@@ -310,17 +310,24 @@ function resolveEventContentValue($eventValue, $name, $eventId) {
     }
 }
 
-function composeEventStartTime($event) {
+function composeEventStartAndEndTime($event) {
    $eventStartTimeValue = resolveEventContentValue($event['start']['dateTime'], 'time', $event['id']);
 
    if ($eventStartTimeValue === 'No time specified') {
         return $eventStartTimeValue;
    } else {
-        $date = new DateTime($event['start']['dateTime'], new DateTimeZone($event['start']['timeZone']));
+        $startDateTime = new DateTime($event['start']['dateTime'], new DateTimeZone($event['start']['timeZone']));
+        $endDateTime = new DateTime($event['end']['dateTime'], new DateTimeZone($event['end']['timeZone']));
+
+        $startAndEndTimeText = $startDateTime->format('H:i');
+        if (!is_null($endDateTime)) {
+            $startAndEndTimeText = $startAndEndTimeText.' - '.$endDateTime->format('H:i');
+        }
+
         return
             '<div style="'.clockContainerStyle().'">
                 <img style="'.clockIconStyle().'" border="0" src="https://cdn.pixabay.com/photo/2017/06/26/00/46/flat-2442462_960_720.png">
-                <div>'.$date->format('H:i').'</div>
+                <div>'.$startAndEndTimeText.'</div>
             </div>';
    }
 }
