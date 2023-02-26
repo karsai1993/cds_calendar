@@ -217,16 +217,16 @@ function composeEventStartContainer($event) {
 function composeContentContainer($event) {
     $description = $event['description'];
     $descriptionData = resolveDescriptionData($description);
-    $eventTypes = $descriptionData['eventTypes'];
+    $eventCategories = $descriptionData['eventCategories'];
 
     $eventId = $event['id'];
 
     $content = $content.(
-        is_null($eventTypes)
+        is_null($eventCategories)
             ?
                 ''
             :
-                ''.composeEventTypeTags($eventTypes).''
+                ''.composeEventCategoryTags($eventCategories).''
     );
     $content = $content.(
         is_null($event['summary'])
@@ -288,13 +288,13 @@ function composeContentContainer($event) {
     return $content;
 }
 
-function composeEventTypeTags($eventTypes) {
-    $numItems = count($eventTypes);
+function composeEventCategoryTags($eventCategories) {
+    $numItems = count($eventCategories);
     $i = 0;
 
-    $content = '<div style="'.eventTypesParentContainer().'">';
-    foreach ($eventTypes as $eventType) {
-        $content = $content.'<div style="'.eventTypeStyle($i === 0, $i === $numItems - 1).'">'.substr($eventType, 1).'</div>';
+    $content = '<div style="'.eventCategoriesParentContainer().'">';
+    foreach ($eventCategories as $eventCategory) {
+        $content = $content.'<div style="'.eventCategoriesStyle($i === 0, $i === $numItems - 1).'">'.substr($eventCategory, 1).'</div>';
         $i++;
     }
     $content = $content.'</div>';

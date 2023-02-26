@@ -9,7 +9,7 @@ function resolveDescriptionData($description) {
 
     $pattern = '(#+[a-zA-Z0-9(_)]{1,})';
     if (preg_match_all($pattern, $description, $matches)) {
-        $descriptionData['eventTypes'] = $matches[0];
+        $descriptionData['eventCategories'] = $matches[0];
     }
 
     return $descriptionData;

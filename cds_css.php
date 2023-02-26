@@ -213,14 +213,14 @@ function eventTitleStyle() {
         'font-weight: bold;';
 }
 
-function eventTypesParentContainer() {
+function eventCategoriesParentContainer() {
     return
         'display: flex;
          align-items: center;
         ';
 }
 
-function eventTypeStyle($isFirstItem, $isLastItem) {
+function eventCategoriesStyle($isFirstItem, $isLastItem) {
     return
         'font-size: 10px;
          background-color: grey;
