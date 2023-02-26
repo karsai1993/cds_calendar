@@ -186,7 +186,6 @@ function convertEventToHtml($event, $isLastItem) {
         '<div style="'.mainContainerStyle().$mainContainerExtraStyle.'">
             <div style="'.startDateContainerStyle().'">'.composeEventStartContainer($event).'</div>
             <div style="'.contentContainerStyle().'">'.composeContentContainer($event).'</div>
-            <div>By '.getOrganizationBasedOnEmailAddress($event['creator']['email']).'</div>
             <div>'.composeExtrasContainer($event).'</div>
         </div>';
 }
@@ -240,6 +239,17 @@ function composeContentContainer($event) {
                         <a style="'.eventTitleLinkStyle().'" href="'.$event['htmlLink'].'" target="_blank">
                             '.resolveEventContentValue($event['summary'], 'title', $eventId).'
                         </a>
+                    </div>
+                '
+    );
+    $content = $content.(
+        is_null($event['creator']['email'])
+            ?
+                ''
+            :
+                '
+                    <div style="'.contentPartContainerStyle().'">
+                        By '.getOrganizationBasedOnEmailAddress($event['creator']['email']).'
                     </div>
                 '
     );
