@@ -216,7 +216,8 @@ function composeEventStartContainer($event) {
 
 function composeContentContainer($event) {
     $description = $event['description'];
-    $eventTypes = resolveEventTypes($description);
+    $descriptionData = resolveDescriptionData($description);
+    $eventTypes = $descriptionData['eventTypes'];
 
     $eventId = $event['id'];
 

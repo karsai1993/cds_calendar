@@ -1,17 +1,18 @@
 <?php
 
-function resolveEventTypes($eventValue) {
-    if (is_null($eventValue)) {
+function resolveDescriptionData($description) {
+    if (is_null($description)) {
         return null;
     }
+
+    $descriptionData = null;
 
     $pattern = '(#+[a-zA-Z0-9(_)]{1,})';
-
-    if (preg_match_all($pattern, $eventValue, $matches)) {
-        return $matches[0];
-    } else {
-        return null;
+    if (preg_match_all($pattern, $description, $matches)) {
+        $descriptionData['eventTypes'] = $matches[0];
     }
+
+    return $descriptionData;
 }
 
 function composeOrganizationEmailAddressesMap() {
