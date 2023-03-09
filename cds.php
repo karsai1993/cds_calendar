@@ -215,9 +215,11 @@ function composeEventStartContainer($event) {
 }
 
 function composeContentContainer($event) {
-    $description = $event['description'];
-    $descriptionData = resolveDescriptionData($description);
+    $originalDescription = $event['description'];
+    $descriptionData = resolveDescriptionData($originalDescription);
+    $description = $descriptionData['description'];
     $eventCategories = $descriptionData['eventCategories'];
+    $eventTitleUrl = $descriptionData['eventTitleUrl'];
 
     $eventId = $event['id'];
 
@@ -236,10 +238,19 @@ function composeContentContainer($event) {
                 '
             :
                 '
-                    <div style="'.eventTitleStyle().contentPartContainerStyle().'">
-                        <a style="'.eventTitleLinkStyle().'" href="'.$event['htmlLink'].'" target="_blank">
-                            '.resolveEventContentValue($event['summary'], 'title', $eventId).'
-                        </a>
+                    <div style="'.eventTitleStyle().contentPartContainerStyle().'">'.
+                        (
+                            is_null($eventTitleUrl)
+                                ?
+                                    ''.resolveEventContentValue($event['summary'], 'title', $eventId)
+                                :
+                                    '
+                                        <a style="'.eventTitleLinkStyle().'" href="'.$eventTitleUrl.'" target="_blank">
+                                            '.resolveEventContentValue($event['summary'], 'title', $eventId).'
+                                        </a>
+                                    '
+                        )
+                    .'
                     </div>
                 '
     );
@@ -294,7 +305,7 @@ function composeEventCategoryTags($eventCategories) {
 
     $content = '<div style="'.eventCategoriesParentContainer().'">';
     foreach ($eventCategories as $eventCategory) {
-        $content = $content.'<div style="'.eventCategoriesStyle($i === 0, $i === $numItems - 1).'">'.substr($eventCategory, 1).'</div>';
+        $content = $content.'<div style="'.eventCategoriesStyle($i === 0, $i === $numItems - 1).'">'.$eventCategory.'</div>';
         $i++;
     }
     $content = $content.'</div>';

@@ -1,15 +1,56 @@
 <?php
 
-function resolveDescriptionData($description) {
-    if (is_null($description)) {
+$lineBreakUrlEncoded = urlencode('<br>');
+
+function removeTrailingHtmlLineBreaks($text) {
+    global $lineBreakUrlEncoded;
+    return urldecode(trim(urlencode($text), $lineBreakUrlEncoded));
+}
+
+function resolveDescriptionExtraInfo($extraInfo, $key) {
+    global $lineBreakUrlEncoded;
+    $extraInfoParts = explode($lineBreakUrlEncoded, urlencode($extraInfo));
+
+    foreach ($extraInfoParts as $extraInfoPart) {
+        $decodedExtraInfoPart = urldecode($extraInfoPart);
+        if (str_starts_with($decodedExtraInfoPart, $key)) {
+            $separatorIndex = strpos($decodedExtraInfoPart, '=');
+            return substr($decodedExtraInfoPart, $separatorIndex + 1);
+        }
+    }
+
+    return null;
+}
+
+function resolveDescriptionData($originalDescription) {
+    if (is_null($originalDescription)) {
         return null;
     }
 
     $descriptionData = null;
 
-    $pattern = '(#+[a-zA-Z0-9(_)]{1,})';
-    if (preg_match_all($pattern, $description, $matches)) {
-        $descriptionData['eventCategories'] = $matches[0];
+    $originalDescriptionSeparator = 'EXTRA INFORMATION';
+    $separatorIndex = strpos($originalDescription, $originalDescriptionSeparator);
+
+    if($separatorIndex === false){
+        $descriptionData['description'] = $originalDescription;
+    } else {
+        $description = removeTrailingHtmlLineBreaks(substr($originalDescription, 0, $separatorIndex));
+        $descriptionData['description'] = $description;
+
+        $extraInfo = removeTrailingHtmlLineBreaks(
+            substr($originalDescription, $separatorIndex + strlen($originalDescriptionSeparator))
+        );
+
+        $categoriesExtraInfo = resolveDescriptionExtraInfo($extraInfo, 'categories');
+        $descriptionData['eventCategories'] = explode(',', $categoriesExtraInfo);
+
+        $titleUrlExtraInfo = resolveDescriptionExtraInfo($extraInfo, 'title_url');
+        $descriptionData['eventTitleUrl'] = str_starts_with($titleUrlExtraInfo, '<a')
+            ?
+                (string)(new SimpleXMLElement($titleUrlExtraInfo))['href']
+            :
+                $titleUrlExtraInfo;
     }
 
     return $descriptionData;
