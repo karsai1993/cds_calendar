@@ -319,9 +319,15 @@ function resolveEventContentValue($eventValue, $name, $eventId) {
         $eventValue = trim($eventValue);
         $length = strlen($eventValue);
         if ($length > 100) {
+            $shortVersionEventValue = str_starts_with($eventValue, '<')
+                ?
+                    resolveHtmlAsText($eventValue, 100)
+                :
+                    substr($eventValue, 0, 100);
+
             return '
                 <div>
-                    <label id="show_more_'.$eventId.'_'.$name.'_label_id">'.substr($eventValue, 0, 100).'...</label>
+                    <label id="show_more_'.$eventId.'_'.$name.'_label_id">'.$shortVersionEventValue.'...</label>
                     <label id="show_less_'.$eventId.'_'.$name.'_label_id" style="display: none;">'.$eventValue.'</label>
                     <button id="show_more_less_'.$eventId.'_'.$name.'_btn_id" onclick="onShowMoreLessClicked(\''.$eventId.'\', \''.$name.'\');" style="'.showMoreLessBtnStyle('unset').'">Show more</button>
                 </div>

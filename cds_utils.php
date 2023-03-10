@@ -2,6 +2,12 @@
 
 $lineBreakUrlEncoded = urlencode('<br>');
 
+function resolveHtmlAsText($text, $length, $startPoint = 0) {
+    $text = html_entity_decode(htmlspecialchars_decode($text));
+    $text = strip_tags($text, '');
+    return $text = substr($text, $startPoint, $length);
+}
+
 function removeTrailingHtmlLineBreaks($text) {
     global $lineBreakUrlEncoded;
     return urldecode(trim(urlencode($text), $lineBreakUrlEncoded));
