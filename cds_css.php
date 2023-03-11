@@ -91,11 +91,18 @@ function searchLoadingContainer() {
         ';
 }
 
-function navigationBtnContainerStyle() {
+function navigationAndPageContainerStyle() {
     return
         'display: flex;
          align-items: center;
-         justify-content: center;
+         margin-top: 10px;
+        ';
+}
+
+function navigationBtnContainerStyle() {
+    return
+        'flex: 1;
+         text-align: center;
         ';
 }
 
@@ -106,18 +113,48 @@ function pageNavigationBtnStyle($shouldBeHidden) {
          border-radius: 10px;
          text-align: center;
          padding: 10px;
-         margin: 0px 5px;
+         margin: 5px;
          '.($shouldBeHidden ? 'display: none;' : '').'
         ';
 }
 
-function searchBtnStyle($marginRight) {
+function btnStyle($marginRight) {
     return
         '
          border-radius: 10px;
          text-align: center;
          padding: 10px;
          margin-right: '.$marginRight.'px;
+         margin-top: 5px;
+         margin-bottom: 5px;
+        ';
+}
+
+function pageSizeContainer() {
+    return
+        '
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         margin-bottom: 5px;
+        ';
+}
+
+function pageSizeLabelContainer() {
+    return
+        '
+         max-width: 60px;
+         text-align: center;
+         margin-right: 5px;
+         font-size: 12px;
+        ';
+}
+
+function pageSizeSelectContainer() {
+    return
+        '
+         border-radius: 10px;
+         font-size: 12px;
         ';
 }
 

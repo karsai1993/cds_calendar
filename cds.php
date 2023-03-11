@@ -11,6 +11,7 @@ require 'cds_utils.php';
 require 'cds_functions.php';
 
 $page = null;
+$pageSize = null;
 $query = null;
 
 add_shortcode('cds_calendar', 'resolveCdsCalendar');
@@ -36,6 +37,12 @@ function getActualAttributes($original_attributes) {
     return shortcode_atts($default, $original_attributes);
 }
 
+function identifyMaxResults($queryParams) {
+    global $pageSize;
+    $pageSize = is_null($queryParams['ms']) ? 10 : intval($queryParams['ms']);
+    return $pageSize;
+}
+
 function loadEvents($calendarId, $apiKey, $queryString) {
 	$ch = curl_init();
 
@@ -55,13 +62,13 @@ function loadEvents($calendarId, $apiKey, $queryString) {
         $page = null;
         $query = $queryParams['q'];
     } else if (!is_null($queryParams['p'])) {
-        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=10&pageToken='.urlencode($queryParams['p']);
+        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults='.identifyMaxResults($queryParams).'&pageToken='.urlencode($queryParams['p']);
         global $page;
         global $query;
         $page = $queryParams['p'];
         $query = null;
     } else {
-        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults=10';
+        $requestUrl = $requestUrl.'&timeMin='.$defaultTimeMin.'&maxResults='.identifyMaxResults($queryParams);
         global $page;
         global $query;
         $page = null;
@@ -105,14 +112,14 @@ function convertEventsToHtml($eventsResult) {
                     <div style="'.showSearchOutputHeaderContainerStyle().'">Applied filter</div>
                     <div style="'.showSearchOutputValueContainerStyle().'">'.$query.'</div>
                 </div>
-                <button style="'.searchBtnStyle(20).'" onclick="window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'\', \'_self\');">Remove filter</button>
+                <button style="'.btnStyle(20).'" onclick="window.open(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'\', \'_self\');">Remove filter</button>
             </div>
         ';
     } else {
         $content = '
             <form action="" method="post" style="'.searchContainerStyle().'">
                 <input style="'.searchInputContainerStyle().'" type="text" name="search_query" placeholder="Filter in all content">
-                <button style="'.searchBtnStyle(0).'" name="search_apply">Apply filter</button>
+                <button style="'.btnStyle(0).'" name="search_apply">Apply filter</button>
             </form>
         ';
     }
@@ -141,27 +148,54 @@ function convertEventsToHtml($eventsResult) {
 
     $pageToken = $eventsResult['nextPageToken'];
 
+    global $pageSize;
+
     global $page;
     $content = $content.'
-        <div style="'.navigationBtnContainerStyle().'">
-            <button
-                style="'.pageNavigationBtnStyle(is_null($page)).'"
-                onclick="onPreviousClicked(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'\')"
-            >
-                Previous page
-            </button>
-            <div style="'.navigationBtnPlaceholderStyle(!is_null($page)).'"></div>
-            <button
-                style="'.pageNavigationBtnStyle(is_null($pageToken)).'"
-                onclick="onNextPageClicked(
-                    \''.$pageToken.'\',
-                    \''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p='.urlencode($pageToken).'\'
-                )"
-            >
-                Next page
-            </button>
+        <div style="'.navigationAndPageContainerStyle().'">
+            <div style="'.navigationBtnContainerStyle().'">
+                <button
+                    style="'.pageNavigationBtnStyle(is_null($page)).'"
+                    onclick="onPreviousClicked(\''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'\')"
+                >
+                    Previous page
+                </button>
+                <div style="'.navigationBtnPlaceholderStyle(!is_null($page)).'"></div>
+                <button
+                    style="'.pageNavigationBtnStyle(is_null($pageToken)).'"
+                    onclick="onNextPageClicked(
+                        \''.$pageToken.'\',
+                        \''.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?p='.urlencode($pageToken).'\'
+                    )"
+                >
+                    Next page
+                </button>
+            </div>
+            <form action="" method="post">
+                <div style="'.pageSizeContainer().'">
+                    <div for="page_size_options" style="'.pageSizeLabelContainer().'">Events per page</div>
+                    <select name="page_size_options" id="page_size_options" style="'.pageSizeSelectContainer().'">
+                        <option value="5"'.($pageSize === 5 ? ' selected' : '').'>5</option>
+                        <option value="10"'.($pageSize === 10 ? ' selected' : '').'>10</option>
+                        <option value="30"'.($pageSize === 30 ? ' selected' : '').'>30</option>
+                    </select>
+                </div>
+                <button name="page_size_option_btn" style="'.btnStyle(0).'">Apply page size</button>
+            </form>
         </div>
     ';
+
+    if (isset($_POST['page_size_option_btn'])) {
+        $content = '<div style="'.searchLoadingContainer().'">Please, wait! We are loading the page with the desired size.</div>';
+        $content = $content.'
+            <script type="text/javascript">
+                window.open(
+                    "'.home_url(strtok($_SERVER["REQUEST_URI"], '?')).'?ms='.urlencode($_POST['page_size_options']).'",
+                    "_self"
+                );
+            </script>
+        ';
+    }
 
     // TODO: delete when no need for logging
     //global $baseRequestUri;
