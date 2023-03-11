@@ -11,13 +11,16 @@ function fetchFunctions() {
                     window.open(url, \'_self\');
                 } else {
                     let storedTokens = JSON.parse(storedTokensAsString);
+
                     let previousToken = \'\';
-                    if (!!storedTokens.length) {
+
+                    if (storedTokens?.length >= 2) {
                         storedTokens.pop();
-                        if (!!storedTokens.length) {
-                            previousToken = storedTokens.pop();
-                        }
+                        previousToken = storedTokens.slice(-1);
+                    } else if (storedTokens?.length > 0) {
+                        storedTokens.pop();
                     }
+
                     sessionStorage.setItem(\'cds_navigation_tokens\', JSON.stringify(storedTokens));
 
                     window.open(url + \'?p=\' + previousToken, \'_self\');
@@ -34,7 +37,10 @@ function fetchFunctions() {
                     storedTokens = JSON.parse(storedTokensAsString);
                 }
 
-                storedTokens.push(pageToken);
+                if (!storedTokens.includes(pageToken)) {
+                    storedTokens.push(pageToken);
+                }
+
                 sessionStorage.setItem(\'cds_navigation_tokens\', JSON.stringify(storedTokens));
 
                 window.open(url, \'_self\');
