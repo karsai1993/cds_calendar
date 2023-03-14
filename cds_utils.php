@@ -19,7 +19,8 @@ function resolveDescriptionExtraInfo($extraInfo, $key) {
     $extraInfoParts = explode($lineBreakUrlEncoded, urlencode($extraInfo));
 
     foreach ($extraInfoParts as $extraInfoPart) {
-        if (str_starts_with($extraInfoPart, $key)) {
+        preg_match('~.*'.$key.'.+~', $extraInfoPart, $matches);
+        if (!empty($matches)) {
             global $equalsUrlEncoded;
             $separatorIndex = strpos($extraInfoPart, $equalsUrlEncoded);
             return urldecode(substr($extraInfoPart, $separatorIndex + strlen($equalsUrlEncoded)));
@@ -50,7 +51,7 @@ function resolveDescriptionData($originalDescription) {
         );
 
         $categoriesExtraInfo = resolveDescriptionExtraInfo($extraInfo, 'categories');
-        $descriptionData['eventCategories'] = explode(',', $categoriesExtraInfo);
+        $descriptionData['eventCategories'] = is_null($categoriesExtraInfo) ? null : explode(',', $categoriesExtraInfo);
 
         $titleUrlExtraInfo = resolveDescriptionExtraInfo($extraInfo, 'title_url');
         preg_match_all('~<a(.*?)href="([^"]+)"(.*?)>~', $titleUrlExtraInfo, $matches);
